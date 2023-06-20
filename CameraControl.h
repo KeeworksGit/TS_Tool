@@ -31,14 +31,29 @@ public:
 	MIL_ID MilDigitizer3 = 3;
 	MIL_ID MilDigitizer4 = 4;
 	MIL_ID MilImage1[GRAB_NUM];
+	MIL_ID MilImage2[GRAB_NUM];
+	MIL_ID MilImage3[GRAB_NUM];
+	MIL_ID MilImage4[GRAB_NUM];
+
+	CString DevNum;
+	MIL_STRING CamName;
 
 	MIL_ID MilGrabDisplay1; // Display Value
 	MIL_ID Mil1SGrabDisplay1; // Display Value
 	MIL_ID MilGrabDisplay2;
 	MIL_ID MilGrabDisplay3;
 	MIL_ID MilGrabDisplay4;
-	MIL_ID MilDispImage1; // Display buffer
+
+	MIL_ID MilGrabDisplay21;
+	MIL_ID MilGrabDisplay22;
+	MIL_ID MilGrabDisplay23;
+	MIL_ID MilGrabDisplay24;
+
 	MIL_ID Mil1SGrabDispImage1; // Display buffer
+	MIL_ID Mil1SGrabDispImage2; // Display buffer
+	MIL_ID Mil1SGrabDispImage3; // Display buffer
+	MIL_ID Mil1SGrabDispImage4; // Display buffer
+	MIL_ID MilDispImage1; // Display buffer
 	MIL_ID MilDispImage2;
 	MIL_ID MilDispImage3;
 	MIL_ID MilDispImage4;
@@ -79,15 +94,20 @@ public:
 	CString file_format = _T(".bmp"); // DEFAULT VALUEW
 
 	int boardselector; // 보드 셀렉터
-	int Digitizercnt; // 카메라 개수
+	int Digitizercnt = 0; // 카메라 개수
 
 	bool Processing; // Processing Switch
 	int ProcessingID_1; // Processing ID 1
 	int ProcessingID_2; // Processing ID 1
 	int ProcessingID_3; // Processing ID 1
 	int ProcessingID_4; // Processing ID 1
-	int BufCtrl;
-	int TotalFrameNum; //  
+	int BufCtrl = 0;
+	int TotalFrameNum; // 
+
+
+	// Edge Finder 변수
+	double min = 50;
+	double max = 150;
 
 	void BoardAlloc();
 	int DigitAlloc(MIL_ID MilSystem, CString DCF_NAME, MIL_ID Digitizer);
@@ -104,6 +124,5 @@ public:
 	void DigitFree(MIL_ID Digitizer, MIL_ID DispBuf, MIL_ID Disp, MIL_ID* GrabBuf, MIL_ID Disp2, MIL_ID Disp3, MIL_ID Disp4);
 	int DisplayAlloc(MIL_ID Digitizer);
 	void DisplayAlloc_Free(MIL_ID Disp);
-
 };
 

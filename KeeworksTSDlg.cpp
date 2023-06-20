@@ -72,6 +72,9 @@ void CKeeworksTSDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BTN_DCF, m_btn_dcf1);
 	DDX_Control(pDX, IDC_BUTTON_OPEN, m_btn_dcfopen);
 	DDX_Control(pDX, IDC_BUTTON_FREE, m_btn_dcffree);
+	DDX_Control(pDX, IDC_BUTTON_OPEN2, m_btn_dcfopen2);
+	DDX_Control(pDX, IDC_BUTTON_FREE2, m_btn_dcffree2);
+	DDX_Control(pDX, IDC_BTN_DCF2, m_btn_dcf2);
 }
 
 BEGIN_MESSAGE_MAP(CKeeworksTSDlg, CDialogEx)
@@ -84,6 +87,8 @@ BEGIN_MESSAGE_MAP(CKeeworksTSDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_DCF, &CKeeworksTSDlg::OnBnClickedBtnDcf)
 	ON_BN_CLICKED(IDC_BUTTON_OPEN, &CKeeworksTSDlg::OnBnClickedButtonOpen)
 	ON_BN_CLICKED(IDC_BUTTON_FREE, &CKeeworksTSDlg::OnBnClickedButtonFree)
+	ON_BN_CLICKED(IDC_BTN_DCF2, &CKeeworksTSDlg::OnBnClickedBtnDcf2)
+	ON_BN_CLICKED(IDC_BUTTON_OPEN2, &CKeeworksTSDlg::OnBnClickedButtonOpen2)
 END_MESSAGE_MAP()
 
 
@@ -122,15 +127,21 @@ BOOL CKeeworksTSDlg::OnInitDialog()
 	SetWindowText(_T("TS_Solution_Tool_Keeworks"));
 
 	m_list_board.InsertString(0, _T("Rapixo CXP"));
-	m_list_board.InsertString(1, _T("Radient EV_CL"));
+	m_list_board.InsertString(1, _T("Solios CL"));
+	m_list_board.InsertString(2, _T("Radient EV_CL"));
+	m_list_board.InsertString(3, _T("GigE Vision"));
 	
 	GetDlgItem(IDC_COMBO_BOARD)->MoveWindow(20, 66, 206, 23); // Board Selec
 	GetDlgItem(IDC_BTN_BALLOC)->MoveWindow(237, 66, 103, 23); // Board Alloc
 
 	GetDlgItem(IDC_STATIC_DCF)->MoveWindow(20, 170, 331, 33); // DCF1
+	GetDlgItem(IDC_STATIC_DCF2)->MoveWindow(20, 253, 331, 33); // DCF1
 	GetDlgItem(IDC_BTN_DCF)->MoveWindow(359, 170, 103, 33); // Set
+	GetDlgItem(IDC_BTN_DCF2)->MoveWindow(359, 253, 103, 33); // Set
 	GetDlgItem(IDC_BUTTON_OPEN)->MoveWindow(469, 170, 103, 33); // open
+	GetDlgItem(IDC_BUTTON_OPEN2)->MoveWindow(469, 253, 103, 33); // open
 	GetDlgItem(IDC_BUTTON_FREE)->MoveWindow(579, 170, 103, 33); // Free
+	GetDlgItem(IDC_BUTTON_FREE2)->MoveWindow(579, 253, 103, 33); // Free
 
 	// 상하 여백 + - 5
 	CClientDC dc(GetDlgItem(IDC_STATIC_DCF));
@@ -138,6 +149,13 @@ BOOL CKeeworksTSDlg::OnInitDialog()
 	rt.top += 5;
 	rt.bottom -= 5;
 	((CEdit*)GetDlgItem(IDC_STATIC_DCF))->SetRect(&rt);
+
+	CClientDC dc2(GetDlgItem(IDC_STATIC_DCF2));
+	CRect rt2; GetDlgItem(IDC_STATIC_DCF2)->GetClientRect(&rt2);
+	rt2.top += 5;
+	rt2.bottom -= 5;
+	((CEdit*)GetDlgItem(IDC_STATIC_DCF2))->SetRect(&rt2);
+
 
 	m_btn_dcfopen.EnableWindow(false);
 	m_btn_dcffree.EnableWindow(false);
@@ -180,6 +198,7 @@ void CKeeworksTSDlg::OnPaint()
 
 		// 아이콘을 그립니다.
 		dc.DrawIcon(x, y, m_hIcon);
+
 	}
 	else
 	{
@@ -234,12 +253,17 @@ void CKeeworksTSDlg::OnCbnSelchangeComboBoard()
 	else if (iSel == 1) {
 		CC->boardselector = 1;
 	}
+	else if (iSel == 2) {
+		CC->boardselector = 2;
+	}
+	else if (iSel == 3) {
+		CC->boardselector = 3;
+	}
 }
 
 void CKeeworksTSDlg::OnBnClickedBtnDcf()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-
 	CString str = _T("dcf 파일 (*.dcf) | *.dcf|"); // 모든 파일 표시
 	// _T("Excel 파일 (*.xls, *.xlsx) |*.xls; *.xlsx|"); 와 같이 확장자를 제한하여 표시할 수 있음
 	CFileDialog dlg(TRUE, _T("*.dat"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, str, this);
@@ -250,11 +274,29 @@ void CKeeworksTSDlg::OnBnClickedBtnDcf()
 		CString Filename = dlg.GetFileName();
 		// 파일 경로를 가져와 사용할 경우, Edit Control에 값 저장
 		SetDlgItemText(IDC_STATIC_DCF, _T(" ") + Filename);
-		CC->Digitizercnt += 1;
 	}
-	cout << string(CT2CA(CC->DCF_Name_1)) << endl;
+	// cout << string(CT2CA(CC->DCF_Name_1)) << endl;
 
 	m_btn_dcfopen.EnableWindow(true);
+}
+
+void CKeeworksTSDlg::OnBnClickedBtnDcf2()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	CString str = _T("dcf 파일 (*.dcf) | *.dcf|"); // 모든 파일 표시
+	// _T("Excel 파일 (*.xls, *.xlsx) |*.xls; *.xlsx|"); 와 같이 확장자를 제한하여 표시할 수 있음
+	CFileDialog dlg(TRUE, _T("*.dat"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, str, this);
+
+	if (dlg.DoModal() == IDOK)
+	{
+		CC->DCF_Name_2 = dlg.GetPathName();
+		CString Filename = dlg.GetFileName();
+		// 파일 경로를 가져와 사용할 경우, Edit Control에 값 저장
+		SetDlgItemText(IDC_STATIC_DCF2, _T(" ") + Filename);
+	}
+	// cout << string(CT2CA(CC->DCF_Name_2)) << endl;
+
+	m_btn_dcfopen2.EnableWindow(true);
 }
 
 void CKeeworksTSDlg::OnBnClickedButtonOpen() // DCF 1 Open
@@ -309,12 +351,18 @@ void CKeeworksTSDlg::OnBnClickedButtonOpen() // DCF 1 Open
 		//cout << "SizeY : " << (int)SizeY << endl;
 		//cout << "SizeBit : " << (int)SizeBit << endl;
 
+
 		CamCtrl->Create(IDD_CAM_CONTROL);
 		CamCtrl->CenterWindow(CWnd::GetDesktopWindow());
 		CamCtrl->ShowWindow(SW_SHOW);
 
-		m_btn_dcfopen.EnableWindow(false);
-		m_btn_dcffree.EnableWindow(true);
+		// Dev List 갱신
+		CamCtrl->AddDevice(CC->DevNum);
+		CString CCamName = (CC->CamName.c_str());
+		CamCtrl->AddCam(CCamName);
+
+		m_btn_dcfopen2.EnableWindow(false);
+		m_btn_dcffree2.EnableWindow(true);
 
 	}
 	catch (string error)
@@ -364,4 +412,77 @@ BOOL CKeeworksTSDlg::PreTranslateMessage(MSG* pMsg)
 		}
 	}
 	return CDialogEx::PreTranslateMessage(pMsg);
+}
+
+void CKeeworksTSDlg::OnBnClickedButtonOpen2()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+
+	try {
+		DigID_2 = CC->DigitAlloc(CC->MilSystem, CC->DCF_Name_2, CC->MilDigitizer2);
+
+		MIL_STRING DeviceScanType;
+		CString DevType;
+		MdigInquireFeature(DigID_2, M_FEATURE_VALUE, MIL_TEXT("DeviceScanType"), M_TYPE_STRING, DeviceScanType);
+		DevType = DeviceScanType.c_str();
+
+		cout << "  Device Type : " << string(CT2CA(DeviceScanType.c_str())) << endl;
+
+		if (DevType.CompareNoCase(_T("Areascan")) == 0) // AreaScan 
+		{
+			cout << "  This is AreaScan Camera!" << endl;
+			DeviceType = 1;
+			MdigInquire(DigID_2, M_SELECTED_FRAME_RATE, &FrameRate);
+			cout << "  FrameRate : " << (double)FrameRate << endl;
+		}
+		else if (DevType.CompareNoCase(_T("LineScan")) == 0)
+		{
+			cout << "  This is LineScan Camera!" << endl;
+			DeviceType = 2;
+			MdigInquireFeature(DigID_2, M_FEATURE_VALUE, MIL_TEXT("AcquisitionLineRate"), M_TYPE_DOUBLE, &AcquisitionLineRate);
+			cout << "  LineRate : " << (double)AcquisitionLineRate << endl;
+		}
+
+		Result2 = CC->BufnDispAlloc(DigID_2, CC->MilImage2, CC->MilDispImage2, CC->MilGrabDisplay21);
+		BufferID2 = CC->otheralloc();
+
+		GrabBuf2 = get<1>(Result1); // GrabBUf
+		DispBuf2 = get<2>(Result1); // DispBuf
+		Disp21 = get<3>(Result1);	// Disp ID
+		SizeBand2 = get<4>(Result1);	// Disp ID
+		SizeX2 = get<5>(Result1);	// Disp ID
+		SizeY2 = get<6>(Result1);	// Disp ID
+		SizeBit2 = get<7>(Result1);	// Disp ID
+
+		Disp22 = get<0>(BufferID2);
+		Disp23 = get<1>(BufferID2);
+		Disp24 = get<2>(BufferID2);
+
+		//cout << "SizeBand : " << (int)SizeBand << endl;
+		//cout << "SizeX : " << (int)SizeX << endl;
+		//cout << "SizeY : " << (int)SizeY << endl;
+		//cout << "SizeBit : " << (int)SizeBit << endl;
+
+		// CamCtrl->Create(IDD_CAM_CONTROL);
+		// CamCtrl->CenterWindow(CWnd::GetDesktopWindow());
+		// CamCtrl->ShowWindow(SW_SHOW);
+
+		// Dev List 갱신
+		CamCtrl->AddDevice(CC->DevNum);
+		CString CCamName = (CC->CamName.c_str());
+		CamCtrl->AddCam(CCamName);
+
+		CamCtrl->AddDevice(_T("DEV5"));
+		CCamName = (CC->CamName.c_str());
+		CamCtrl->AddCam(CCamName);
+
+		m_btn_dcfopen.EnableWindow(false);
+		m_btn_dcffree.EnableWindow(true);
+
+	}
+	catch (string error)
+	{
+		cout << error << endl;
+	}
+
 }

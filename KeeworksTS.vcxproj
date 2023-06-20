@@ -203,6 +203,7 @@
   <ItemGroup>
     <ClInclude Include="CameraControl.h" />
     <ClInclude Include="DigitCtrlDlg.h" />
+    <ClInclude Include="EdgeControlDlg.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="KeeworksTS.h" />
     <ClInclude Include="KeeworksTSDlg.h" />
@@ -213,6 +214,7 @@
   <ItemGroup>
     <ClCompile Include="CameraControl.cpp" />
     <ClCompile Include="DigitCtrlDlg.cpp" />
+    <ClCompile Include="EdgeControlDlg.cpp" />
     <ClCompile Include="KeeworksTS.cpp" />
     <ClCompile Include="KeeworksTSDlg.cpp" />
     <ClCompile Include="pch.cpp">

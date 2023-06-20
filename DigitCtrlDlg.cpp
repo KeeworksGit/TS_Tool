@@ -7,7 +7,7 @@
 #include "DigitCtrlDlg.h"
 #include "KeeworksTSDlg.h"
 #include "CameraControl.h"
-
+#include "EdgeControlDlg.h"
 
 // DigitCtrlDlg 대화 상자
 
@@ -25,6 +25,10 @@ MIL_ID MilGrabDisplay4;
 
 bool DispAlloc_check = false;
 MIL_ID LineDisplay;
+
+HTREEITEM DEV0, CAM0; // Device List
+
+EdgeControlDlg* EdgeCtrl;
 
 DigitCtrlDlg::DigitCtrlDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_CAM_CONTROL, pParent)
@@ -46,6 +50,8 @@ void DigitCtrlDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON_CAMSET, m_btn_feature1);
 	DDX_Control(pDX, IDC_COMBO_DEVCPY, m_list_devcpy);
 	DDX_Control(pDX, IDC_EDIT_FRNUM, m_edti_frnum);
+	DDX_Control(pDX, IDC_BUTTON_EDGE, m_btn_edge);
+	DDX_Control(pDX, IDC_TREE_DEVICE, m_tree_dev);
 }
 
 
@@ -58,6 +64,7 @@ BEGIN_MESSAGE_MAP(DigitCtrlDlg, CDialogEx)
 	ON_CBN_SELCHANGE(IDC_COMBO_DEVCPY, &DigitCtrlDlg::OnCbnSelchangeComboDevcpy)
 	ON_WM_GETMINMAXINFO()
 	ON_WM_PAINT()
+	ON_BN_CLICKED(IDC_BUTTON_EDGE, &DigitCtrlDlg::OnBnClickedButtonEdge)
 END_MESSAGE_MAP()
 
 // DigitCtrlDlg 메시지 처리기
@@ -71,7 +78,7 @@ BOOL DigitCtrlDlg::OnInitDialog()
 	SetWindowText(_T("Digitizer 1 Control"));
 
 	CRect rc;
-	rc.SetRect(0, 0, 315, 340);
+	rc.SetRect(0, 0, 500, 340);
 	MoveWindow(rc);
 
 	m_btn_save1.EnableWindow(false);
@@ -90,7 +97,8 @@ BOOL DigitCtrlDlg::OnInitDialog()
 	GetDlgItem(IDC_BUTTON_1SCRAB)->MoveWindow(14, 145, 84, 25); // Feature Browser
 	GetDlgItem(IDC_BUTTON_1SSAVE)->MoveWindow(103, 145, 84, 25); // Feature Browser
 	GetDlgItem(IDC_EDIT_FRNUM)->MoveWindow(192, 145, 96, 25); // Feature Browser
-
+	GetDlgItem(IDC_BUTTON_EDGE)->MoveWindow(14, 218, 84, 25); // Feature Browser
+	GetDlgItem(IDC_TREE_DEVICE)->MoveWindow(298, 72, 175, 212); // Device List
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// 예외: OCX 속성 페이지는 FALSE를 반환해야 합니다.
@@ -100,15 +108,50 @@ void DigitCtrlDlg::OnBnClickedButtonCgrab()
 {
 	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
 
-	m_btn_cgrab1.EnableWindow(false);
-	m_btn_1shot1.EnableWindow(false);
-	m_btn_cgrabstop1.EnableWindow(true);
-	
-	cout << "Dig ID : " << ((CKeeworksTSDlg*)GetParent())->DigID_1 << " / Grab Buf Address : " << ((CKeeworksTSDlg*)GetParent())->GrabBuf << endl << endl;
-	
-	cout << "MdigProcess (Grab Infinite) Start" << endl << endl;
+	// Tree 개수 Count 
+	int cnt = 0; 
+	HTREEITEM Hcnt = m_tree_dev.GetChildItem(TVI_ROOT);
+	while (Hcnt){
+		cnt++;
+		Hcnt = m_tree_dev.GetNextSiblingItem(Hcnt);
+	}
 
-	((CameraControl*)GetParent())->GrabProcess(((CKeeworksTSDlg*)GetParent())->DigID_1, ((CKeeworksTSDlg*)GetParent())->GrabBuf, ((CKeeworksTSDlg*)GetParent())->DispBuf, ((CKeeworksTSDlg*)GetParent())->Disp); // MdigProcess
+	// Index Inquire
+	int index = 0;
+	HTREEITEM hItem = m_tree_dev.GetSelectedItem();
+	HTREEITEM hChild = m_tree_dev.GetParentItem(hItem);
+	while (hChild)
+	{
+		if (hChild == hItem) break;
+		hChild = m_tree_dev.GetNextItem(hChild, TVGN_NEXT);
+		++index;
+	}
+
+	cout << cnt - index << endl;
+
+	if (cnt - index == 0) { // Digitizer 1 C.Grab 
+
+		m_btn_cgrab1.EnableWindow(false);
+		m_btn_1shot1.EnableWindow(false);
+		m_btn_cgrabstop1.EnableWindow(true);
+		
+		(((CameraControl*)GetParent())->BufCtrl) = 0;
+		cout << "Dig ID : " << ((CKeeworksTSDlg*)GetParent())->DigID_1 << " / Grab Buf Address : " << ((CKeeworksTSDlg*)GetParent())->GrabBuf << endl << endl;
+		cout << "MdigProcess (Grab Infinite) Start" << endl << endl;
+		((CameraControl*)GetParent())->GrabProcess(((CKeeworksTSDlg*)GetParent())->DigID_1, ((CKeeworksTSDlg*)GetParent())->GrabBuf, ((CKeeworksTSDlg*)GetParent())->DispBuf, ((CKeeworksTSDlg*)GetParent())->Disp); 
+	}
+	else if (cnt - index == 1) { // Digitizer 2 C.Grab 
+
+	}
+	else if (cnt - index == 2) { // Digitizer 3 C.Grab 
+
+	}
+	else if (cnt - index == 3) { // Digitizer 4 C.Grb 
+
+	}
+	else {
+		AfxMessageBox(_T("Warning :: Select a device"));
+	}
 }
 
 void DigitCtrlDlg::OnBnClickedButtonCgrabstop()
@@ -140,11 +183,12 @@ void DigitCtrlDlg::OnBnClickedButton1scrab()
 
 		(((CameraControl*)GetParent())->TotalFrameNum) = a;
 
-		if (LineDisplay != NULL)
+		if (LineDisplay != 0) // Display 가 없을 때 Display & Buffer Alloc
 		{
 			((CameraControl*)GetParent())->DisplayAlloc_Free(LineDisplay);
 		}
-		LineDisplay = (((CameraControl*)GetParent())->DisplayAlloc(((CKeeworksTSDlg*)GetParent())->DigID_1));
+
+		LineDisplay = (((CameraControl*)GetParent())->DisplayAlloc(((CKeeworksTSDlg*)GetParent())->DigID_1)); // Display ID GET
 
 		((CameraControl*)GetParent())->GrabLine_Alloc(((CKeeworksTSDlg*)GetParent())->DigID_1, ((CKeeworksTSDlg*)GetParent())->GrabBuf);
 		((CameraControl*)GetParent())->GrabProcess_Line2(((CKeeworksTSDlg*)GetParent())->DigID_1, ((CKeeworksTSDlg*)GetParent())->GrabBuf);
@@ -193,17 +237,15 @@ void DigitCtrlDlg::OnCbnSelchangeComboDevcpy()
 
 	if (iSel == 0) {
 		((CKeeworksTSDlg*)GetParent())->Opendisplay2();
-		//(((CameraControl*)GetParent())->BufCtrl) = 1;
+
 	}
 	else if (iSel == 1) { 
 		((CKeeworksTSDlg*)GetParent())->Opendisplay3();
-		//(((CameraControl*)GetParent())->BufCtrl) = 1;
 	}
 	else if (iSel == 2) {
 		((CKeeworksTSDlg*)GetParent())->Opendisplay4();
 	}
 }
-
 
 void DigitCtrlDlg::OnGetMinMaxInfo(MINMAXINFO* lpMMI)
 {
@@ -272,6 +314,24 @@ BOOL DigitCtrlDlg::PreTranslateMessage(MSG* pMsg)
 			return TRUE;
 		}
 	}
-
 	return CDialogEx::PreTranslateMessage(pMsg);
+}
+
+void DigitCtrlDlg::OnBnClickedButtonEdge()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+	EdgeCtrl = new EdgeControlDlg;
+	EdgeCtrl->Create(IDD_EDGE_CONTROL);
+	EdgeCtrl->CenterWindow(CWnd::GetDesktopWindow());
+	EdgeCtrl->ShowWindow(SW_SHOW);
+}
+
+void DigitCtrlDlg::AddDevice(CString Dev)
+{
+	DEV0 = m_tree_dev.InsertItem(Dev, 0, 0, TVI_ROOT, TVI_LAST);
+}
+
+void DigitCtrlDlg::AddCam(CString Cam)
+{
+	CAM0 = m_tree_dev.InsertItem(Cam, 0, 0, DEV0, TVI_LAST);
 }

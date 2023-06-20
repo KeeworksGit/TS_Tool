@@ -43,4 +43,10 @@ public:
 	void MoveToParentCenter(HWND hWnd);
 	CEdit m_edti_frnum;
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	CButton m_btn_edge;
+	afx_msg void OnBnClickedButtonEdge();
+	CListCtrl m_list_device;
+	CTreeCtrl m_tree_dev;
+	void AddDevice(CString Dev);
+	void AddCam(CString Cam);
 };
